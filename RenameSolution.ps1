@@ -1,4 +1,4 @@
-param([string]$cmdarg = "")
+param([string]$cmdarg = "ValheimModArmorSkills")
 
 #Contibuted by Kpro#3271
 #uncomment to enable logging
