@@ -1,16 +1,17 @@
 using BepInEx;
+using Jotunn;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using UnityEngine;
 using System.IO;
+using System.Collections.Generic;
 
 namespace ValheimModArmorSkills
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid)]
-    //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class ValheimModArmorSkills : BaseUnityPlugin
     {
         public const string PluginGUID = "com.bhixsonsimeral.armorskills";
@@ -32,9 +33,9 @@ namespace ValheimModArmorSkills
         {
             // Jotunn comes with its own Logger class to provide a consistent Log style for all mods using it
             Jotunn.Logger.LogInfo("ValheimModArmorSkills has landed");
-            
-            // To learn more about Jotunn's features, go to
-            // https://valheim-modding.github.io/Jotunn/tutorials/overview.html
+
+            AddSkills();
+            Player.m_localPlayer.On += RaiseSkillLevel;
         }
 
         // Various forms of asset loading
@@ -53,14 +54,29 @@ namespace ValheimModArmorSkills
         {
             // Test adding a skill with a texture
             Sprite testSkillSprite = Sprite.Create(TestTex, new Rect(0f, 0f, TestTex.width, TestTex.height), Vector2.zero);
-            TestSkill = SkillManager.Instance.AddSkill(new SkillConfig
+            List<SkillConfig> skillConfigs = new List<SkillConfig>();
+            skillConfigs.Add(new SkillConfig
+                {
+                    Identifier = "com.jotunn.ArmorSkills.testskill",
+                    Name = "TestingSkill",
+                    Description = "A nice testing skill!",
+                    Icon = testSkillSprite,
+                    IncreaseStep = 1f
+                }
+            );
+            
+            foreach (SkillConfig skillConfig in skillConfigs)
             {
-                Identifier = "com.jotunn.ArmorSkills.testskill",
-                Name = "TestingSkill",
-                Description = "A nice testing skill!",
-                Icon = testSkillSprite,
-                IncreaseStep = 1f
-            });
+                TestSkill = SkillManager.Instance.AddSkill(skillConfig);
+            }
+        }
+
+        void RaiseSkillLevel(HitData hitData)
+        {
+            if (hitData.m_hitType == HitData.HitType.EnemyHit)
+            {
+                Player.m_localPlayer.RaiseSkill(TestSkill);
+            }
         }
     }
 }
