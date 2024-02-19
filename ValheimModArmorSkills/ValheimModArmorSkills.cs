@@ -7,6 +7,9 @@ using Jotunn.Utils;
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using BepInEx.AssemblyPublicizer;
+using System.Reflection;
+using System;
 
 namespace ValheimModArmorSkills
 {
@@ -35,7 +38,7 @@ namespace ValheimModArmorSkills
             Jotunn.Logger.LogInfo("ValheimModArmorSkills has landed");
 
             AddSkills();
-            Player.m_localPlayer.On += RaiseSkillLevel;
+            Player.m_localPlayer.m_onDamaged += RaiseSkillLevel;
         }
 
         // Various forms of asset loading
@@ -74,6 +77,14 @@ namespace ValheimModArmorSkills
         void RaiseSkillLevel(HitData hitData)
         {
             if (hitData.m_hitType == HitData.HitType.EnemyHit)
+            {
+                Player.m_localPlayer.RaiseSkill(TestSkill);
+            }
+        }
+
+        void RaiseSkillLevel(float damage, Character attacker)
+        {
+            if(attacker != null)
             {
                 Player.m_localPlayer.RaiseSkill(TestSkill);
             }
